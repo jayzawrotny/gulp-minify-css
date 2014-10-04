@@ -3,7 +3,8 @@ var path = require('path'),
   CleanCSS  = require('clean-css'),
   through2 = require('through2'),
   BufferStreams = require('bufferstreams'),
-  cache = require('memory-cache');
+  cache = require('memory-cache'),
+  applySourceMap = require('vinyl-sourcemaps-apply');
 
 function objectIsEqual(a, b) {
   return JSON.stringify(a) === JSON.stringify(b);
@@ -79,6 +80,11 @@ function minifyCSSGulp(opt){
     // Restore original "relativeTo" value
     opt.relativeTo = relativeToTmp;
     file.contents = new Buffer(newContents);
+
+    // apply source map to the chain
+    if (file.sourceMap) {
+      applySourceMap(file, result.map);
+    }
 
     done(null, file);
   }
